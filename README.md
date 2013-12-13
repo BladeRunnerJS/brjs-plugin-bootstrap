@@ -23,7 +23,7 @@ A basic Gradle build file for bootstrapping BRJS Plugin development. Provides a 
 ### Create your plugin
 - Add your first class and implement the relevant BRJS plugin interface
   - This class should be created in 'src/main/java'.
-  - Use the IDE any unimplemented methods for you.
+  - Use the IDE to add any unimplemented methods for you.
 - Inside src/main/resources/META-INF/services create a file with the same name as the full classpath of the BRJS plugin interface you are implementing.
   - For example: if you are implementing 'CommandPlugin', which is in the package 'org.bladerunnerjs.plugin', you would create the file 'src/main/resources/META-INF/services/org.bladerunnerjs.plugin.CommandPlugin'
 - Inside that file add a line which is equal to the full classpath of your class
