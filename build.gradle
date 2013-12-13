@@ -1,0 +1,22 @@
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'java'
+
+ext.brjsSdkPath = "<path/to/your/BRJS/sdk/dir - e.g. /home/bob/brjs/1.0/sdk>"
+
+dependencies {
+	compile fileTree(dir:ext.brjsSdkPath, include:"libs/java/system/*.jar")
+}
+
+task init, dependsOn: [tasks.eclipse, tasks.idea], {
+	description "Creates directories for src and resources along with the META-INF/services for plugin definitions"
+	if (project.ext.brjsSdkPath.startsWith("<")) { throw new GradleException("You need to set 'brjsSdkPath' at the top of build.gradle before trying to run any tasks.")}
+	doFirst {
+		[file("src/main/java"), file("src/main/resources/META-INF/services"), file("src/test/java"), file("src/test/resources")].each {
+			if (!it.exists()) { it.mkdirs() }
+		}
+		println "\n"+
+	"src and resources directories created successfully, you can now delete the '${tasks.init.name}' task from build.gradle.\n"+
+	"Run './gradlew tasks' to view a list of tasks available via Gradle or read README.md for more info.\n"
+	}
+}
