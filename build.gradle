@@ -3,36 +3,56 @@ apply plugin: 'idea'
 apply plugin: 'java'
 
 // Note: brjsSdkPath is set in gradle.properties
-dependencies {
-	if (project.hasProperty("brjsSdkPath"))		compile fileTree(dir:ext.brjsSdkPath, include:"libs/java/system/*.jar")
-}
-
-/* this init task can be deleted once the project has been initialised */
-task init, dependsOn: [tasks.eclipse, tasks.idea], {
-	description "Creates Gradle properties file, directories for src and resources along with the META-INF/services for plugin definitions"
-	doFirst {
-		def brjsPropName = "brjs"
-		if (!project.hasProperty(brjsPropName))
-		{
-			throw new GradleException("Please supply the path to your BRJS sdk directory.\nFor example if your BRJS sdk dir is '/home/bob/brjs/1.0/sdk' run './gradlew init -P${brjsPropName}=/home/bob/brjs/1.0/sdk'.")
-		}
-		def brjsPropValue = project.property(brjsPropName)
-		def brjsDirPath = new File(brjsPropValue)
-		if (!brjsDirPath.isDirectory())
-		{
-			throw new GradleException("The BRJS path supplied, '${brjsPropValue}', resolves to the path '${brjsDirPath.getCanonicalPath()}' which either doesn't exist or is not a directory. Please ensure it is a valid path to the BRJS sdk dir.")
-		}
-		def gradlePropsFile = file("gradle.properties")
-		if (gradlePropsFile.exists())
-		{
-			throw new GradleException("${gradlePropsFile.path} exists, meaning this project has probably already been initialised and can't be initialised again.")
-		}
-		gradlePropsFile.write("brjsSdkPath=${brjsDirPath.getCanonicalPath()}");
-		[file("src/main/java"), file("src/main/resources/META-INF/services"), file("src/test/java"), file("src/test/resources")].each {
-			if (!it.exists()) { it.mkdirs() }
-		}
-		println "\n"+
-			"src and resources directories created successfully, you can now delete the '${tasks.init.name}' task from build.gradle.\n"+
-			"Run './gradlew tasks' to view a list of tasks available via Gradle or read README.md for more info.\n"
+if (project.hasProperty("brjsSdkPath")) 
+{
+	dependencies {
+		compile fileTree(dir:ext.brjsSdkPath, include:"libs/java/system/*.jar")
 	}
+
+	task copyToBrjs, type: Copy, dependsOn: jar, {
+		def brjsConfJavaDir = new File(brjsSdkPath, "../conf/java")
+		from jar.outputs.files.singleFile
+		into brjsConfJavaDir
+		doLast {
+			println "${project.name} jar copied to ${brjsConfJavaDir.getAbsolutePath()}"
+		}
+	}
+}
+else
+{
+	/* 
+	 *  This configuration, and the wrapping if/else statement can be deleted once the project has been initialised.
+	 *  Make sure to keep the dependencies configuration and other tasks.
+	 */
+	println("\n## WARNING: You are attempting to run a command(s) before initialising this project. You should first run the 'init' task. ##\n")
+
+	task init, dependsOn: [tasks.eclipse, tasks.idea], {
+		description "Creates Gradle properties file, directories for src and resources along with the META-INF/services for plugin definitions"
+		doFirst {
+			def brjsPropName = "brjs"
+			if (!project.hasProperty(brjsPropName))
+			{
+				throw new GradleException("Please supply the path to your BRJS sdk directory.\nFor example if your BRJS sdk dir is '/home/bob/brjs/1.0/sdk' run './gradlew init -P${brjsPropName}=/home/bob/brjs/1.0/sdk'.")
+			}
+			def brjsPropValue = project.property(brjsPropName)
+			def brjsDirPath = new File(brjsPropValue)
+			if (!brjsDirPath.isDirectory())
+			{
+				throw new GradleException("The BRJS path supplied, '${brjsPropValue}', resolves to the path '${brjsDirPath.getCanonicalPath()}' which either doesn't exist or is not a directory. Please ensure it is a valid path to the BRJS sdk dir.")
+			}
+			def gradlePropsFile = file("gradle.properties")
+			if (gradlePropsFile.exists())
+			{
+				throw new GradleException("${gradlePropsFile.path} exists, meaning this project has probably already been initialised and can't be initialised again.")
+			}
+			gradlePropsFile.write("brjsSdkPath=${brjsDirPath.getCanonicalPath()}");
+			[file("src/main/java"), file("src/main/resources/META-INF/services"), file("src/test/java"), file("src/test/resources")].each {
+				if (!it.exists()) { it.mkdirs() }
+			}
+			println "\n"+
+				"src and resources directories created successfully, you can now delete the 'init' task from build.gradle.\n"+
+				"Run './gradlew tasks' to view a list of tasks available via Gradle or read README.md for more info.\n"
+		}
+	}
+
 }
