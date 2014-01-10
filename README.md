@@ -9,13 +9,15 @@ A basic Gradle build file for bootstrapping BRJS Plugin development. Provides a 
 ## Usage
 
 ### Clone the repo and create your project
-- clone this repository and rename the directory to whatever name you wan't for your project
+- Clone this repository and rename the directory to whatever name you wan't for your project
   - `git clone https://github.com/BladeRunnerJS/brjs-plugin-bootstrap.git MyCoolNewPlugin`
-- configure the path to the BladeRunnerJS sdk directory
-  - inside 'build.gradle' change the value of `ext.brjsSdkPath` so the path of your BladeRunnerJS sdk directory. 
-- run `./gradlew init`, this will download the correct version of Gradle and create directories where you should place Java source code, resources and test code. It will also create a 'src/main/resources/META-INF/services' directory.
-- Delete the 'init' task from 'build.gradle'. This step is optional, but you won't need the init task again now the directories have been created.
-  - Delete everything from 'task init, ....' to the closing '}'.
+- Initialise and configure the path to the BladeRunnerJS sdk directory
+  - run `./gradlew init -Pbrjs=<path-to-brjs-sdk-dir>`, this will download the correct version of Gradle, set the brjs path property and create directories where you should place Java source code, resources and test code. It will also create a 'src/main/resources/META-INF/services' directory.
+- Delete the 'init' task and configuration from 'build.gradle'. This step is optional, but you won't need the init task again now the directories have been created.
+  - In `build.gradle` delete all of the configuration in the `else` block and keep only the configuration in the `if` block.
+- If you are using either Eclipse or InteliJ IDEA set up your project files
+  - run `./gradlew eclipse` or `./gradle idea`
+  - For Eclipse the brjs-core source and JavaDocs will also be attached, for InteliJ this must be done manually. The src jar can be found in `<brjs-sdk-dir>/docs/src/`.
 - Import the created project in to your IDE of choice.
   - This is generally done by selecting 'Import existing project'.
   - Once the project is imported the relevant dependencies should be added to the classpath for you.
@@ -34,6 +36,7 @@ A basic Gradle build file for bootstrapping BRJS Plugin development. Provides a 
 ### Build the plugin
 - Run `./gradlew build` to build and test your plugin.
 - Once the build has passed, your plugin is built and placed in the 'build/libs/' directory.
+- You can run `./gradlew copyToBrjs` to automatically copy your jar to the conf/java directory to be picked up by BRJS.
 
 ## More reading
 - [BRJS getting started guide](http://bladerunnerjs.org/docs/use/getting_started/)

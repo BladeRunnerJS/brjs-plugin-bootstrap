@@ -10,13 +10,26 @@ if (project.hasProperty("brjsSdkPath"))
 	}
 
 	task copyToBrjs, type: Copy, dependsOn: jar, {
-		def brjsConfJavaDir = new File(brjsSdkPath, "../conf/java")
+		def brjsConfJavaDir = new File("${brjsSdkPath}/../conf/java")
 		from jar.outputs.files.singleFile
 		into brjsConfJavaDir
 		doLast {
 			println "${project.name} jar copied to ${brjsConfJavaDir.getAbsolutePath()}"
 		}
 	}
+
+	// automatically add brjs-core sources jar for Eclipse classpath
+	tasks.eclipse.doLast {
+		def classPathFile = file(".classpath")
+		String brjsCoreJar = fileTree(dir:brjsSdkPath, include:"libs/java/system/brjs-core-*.jar").singleFile
+		String brjsSrcJar = fileTree(dir:brjsSdkPath, include:"docs/src/*.jar").singleFile
+		def findString = "path=\"${brjsCoreJar}\""
+		def replaceString = findString + " sourcepath=\"${brjsSrcJar}\""
+		if (classPathFile.exists()) {
+			classPathFile.write( classPathFile.text.replace(findString, replaceString) )
+		}
+	}
+
 }
 else
 {
@@ -51,7 +64,7 @@ else
 			}
 			println "\n"+
 				"gradle.properties and src & resources directories created successfully, you can now delete the 'init' task from build.gradle.\n"+
-				"You should now run './gradlew eclipse' or './gradlew idea' to generate the project files for your IDE.\n"+
+				"You should now run './gradlew eclipse' or './gradlew idea' to generate the project files for your IDE and can then run tasks to compile and test your project.\n"+
 				"Run './gradlew tasks' to view a list of tasks available via Gradle or read README.md for more info.\n"
 		}
 	}
