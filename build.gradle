@@ -20,13 +20,17 @@ if (project.hasProperty("brjsSdkPath"))
 
 	// automatically add brjs-core sources jar for Eclipse classpath
 	tasks.eclipse.doLast {
-		def classPathFile = file(".classpath")
-		String brjsCoreJar = fileTree(dir:brjsSdkPath, include:"libs/java/system/brjs-core-*.jar").singleFile
-		String brjsSrcJar = fileTree(dir:brjsSdkPath, include:"docs/src/*.jar").singleFile
-		def findString = "path=\"${brjsCoreJar}\""
-		def replaceString = findString + " sourcepath=\"${brjsSrcJar}\""
-		if (classPathFile.exists()) {
-			classPathFile.write( classPathFile.text.replace(findString, replaceString) )
+		try {
+			def classPathFile = file(".classpath")
+			String brjsCoreJar = fileTree(dir:brjsSdkPath, include:"libs/java/system/brjs-core-*.jar").singleFile
+			String brjsSrcJar = fileTree(dir:brjsSdkPath, include:"docs/src/*.jar").singleFile
+			def findString = "path=\"${brjsCoreJar}\""
+			def replaceString = findString + " sourcepath=\"${brjsSrcJar}\""
+			if (classPathFile.exists()) {
+				classPathFile.write( classPathFile.text.replace(findString, replaceString) )
+			}
+		} catch (IllegalStateException ex) {  // we do nothing with the exception, it was probably thrown because the src jar doesnt exist
+			println "Warning: Exception was thrown when attempting to add the brjs-core src jar to the classpath. This was probably because the src jar doesn't exist.\nThe exception was: \n>> ${ex.toString()}"
 		}
 	}
 
