@@ -1,10 +1,10 @@
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'java'
-
 // Note: brjsSdkPath is set in gradle.properties
 if (project.hasProperty("brjsSdkPath")) 
 {
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	apply plugin: 'java'
+
 	dependencies {
 		compile fileTree(dir:ext.brjsSdkPath, include:"libs/java/system/*.jar")
 	}
@@ -26,7 +26,7 @@ else
 	 */
 	println("\n## WARNING: You are attempting to run a command(s) before initialising this project. You should first run the 'init' task. ##\n")
 
-	task init, dependsOn: [tasks.eclipse, tasks.idea], {
+	task init, {
 		description "Creates Gradle properties file, directories for src and resources along with the META-INF/services for plugin definitions"
 		doFirst {
 			def brjsPropName = "brjs"
@@ -50,7 +50,8 @@ else
 				if (!it.exists()) { it.mkdirs() }
 			}
 			println "\n"+
-				"src and resources directories created successfully, you can now delete the 'init' task from build.gradle.\n"+
+				"gradle.properties and src & resources directories created successfully, you can now delete the 'init' task from build.gradle.\n"+
+				"You should now run './gradlew eclipse' or './gradlew idea' to generate the project files for your IDE.\n"+
 				"Run './gradlew tasks' to view a list of tasks available via Gradle or read README.md for more info.\n"
 		}
 	}
