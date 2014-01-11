@@ -1,16 +1,16 @@
-// Note: brjsSdkPath is set in gradle.properties
-if (project.hasProperty("brjsSdkPath")) 
+// Note: brjsPath is set in gradle.properties
+if (project.hasProperty("brjsPath")) 
 {
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
 	apply plugin: 'java'
 
 	dependencies {
-		compile fileTree(dir:ext.brjsSdkPath, include:"libs/java/system/*.jar")
+		compile fileTree(dir:brjsPath, include:"sdk/libs/java/system/*.jar")
 	}
 
 	task copyToBrjs, type: Copy, dependsOn: jar, {
-		def brjsConfJavaDir = new File("${brjsSdkPath}/../conf/java")
+		def brjsConfJavaDir = new File("${brjsPath}/conf/java")
 		from jar.outputs.files.singleFile
 		into brjsConfJavaDir
 		doLast {
@@ -22,8 +22,8 @@ if (project.hasProperty("brjsSdkPath"))
 	tasks.eclipse.doLast {
 		try {
 			def classPathFile = file(".classpath")
-			String brjsCoreJar = fileTree(dir:brjsSdkPath, include:"libs/java/system/brjs-core-*.jar").singleFile
-			String brjsSrcJar = fileTree(dir:brjsSdkPath, include:"docs/src/*.jar").singleFile
+			String brjsCoreJar = fileTree(dir:brjsPath, include:"sdk/libs/java/system/brjs-core-*.jar").singleFile
+			String brjsSrcJar = fileTree(dir:brjsPath, include:"sdk/docs/src/*.jar").singleFile
 			def findString = "path=\"${brjsCoreJar}\""
 			def replaceString = findString + " sourcepath=\"${brjsSrcJar}\""
 			if (classPathFile.exists()) {
@@ -49,20 +49,25 @@ else
 			def brjsPropName = "brjs"
 			if (!project.hasProperty(brjsPropName))
 			{
-				throw new GradleException("Please supply the path to your BRJS sdk directory.\nFor example if your BRJS sdk dir is '/home/bob/brjs/1.0/sdk' run './gradlew init -P${brjsPropName}=/home/bob/brjs/1.0/sdk'.")
+				throw new GradleException("Please supply the path to your BRJS directory.\nFor example if your BRJS dir is '/home/bob/brjs/1.0' run './gradlew init -P${brjsPropName}=/home/bob/brjs/1.0'.")
 			}
 			def brjsPropValue = project.property(brjsPropName)
-			def brjsDirPath = new File(brjsPropValue)
-			if (!brjsDirPath.isDirectory())
+			def brjsDir = new File(brjsPropValue)
+			if (!brjsDir.isDirectory())
 			{
-				throw new GradleException("The BRJS path supplied, '${brjsPropValue}', resolves to the path '${brjsDirPath.getCanonicalPath()}' which either doesn't exist or is not a directory. Please ensure it is a valid path to the BRJS sdk dir.")
+				throw new GradleException("The BRJS path supplied, '${brjsPropValue}', resolves to the path '${brjsDir.getCanonicalPath()}' which either doesn't exist or is not a directory. Please ensure it is a valid path to the BRJS sdk dir.")
+			}
+			def brjsSdkDir = new File(brjsDir, "sdk")
+			if (!brjsSdkDir.isDirectory())
+			{
+				throw new GradleException("The BRJS path, '${brjsDir.getCanonicalPath()}', doesnt appear to be a valid BRJS directory since it doesn't contain an 'sdk' directory.")
 			}
 			def gradlePropsFile = file("gradle.properties")
 			if (gradlePropsFile.exists())
 			{
 				throw new GradleException("${gradlePropsFile.path} exists, meaning this project has probably already been initialised and can't be initialised again.")
 			}
-			gradlePropsFile.write("brjsSdkPath=${brjsDirPath.getCanonicalPath()}");
+			gradlePropsFile.write("brjsPath=${brjsDir.getCanonicalPath()}");
 			[file("src/main/java"), file("src/main/resources/META-INF/services"), file("src/test/java"), file("src/test/resources")].each {
 				if (!it.exists()) { it.mkdirs() }
 			}
