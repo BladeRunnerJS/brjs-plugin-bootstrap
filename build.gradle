@@ -22,15 +22,16 @@ if (project.hasProperty("brjsPath"))
 	tasks.eclipse.doLast {
 		try {
 			def classPathFile = file(".classpath")
-			String brjsCoreJar = fileTree(dir:brjsPath, include:"sdk/libs/java/system/brjs-core-*.jar").singleFile
-			String brjsSrcJar = fileTree(dir:brjsPath, include:"sdk/docs/src/*.jar").singleFile
+			String brjsCoreJar = fileTree(dir:"${brjsPath}/sdk/libs/java/system", include:"brjs-core-*.jar").singleFile
+			String brjsSrcJar = fileTree(dir:"${brjsPath}/sdk/docs/src", include:"brjs-core-*-sources.jar").singleFile
 			def findString = "path=\"${brjsCoreJar}\""
 			def replaceString = findString + " sourcepath=\"${brjsSrcJar}\""
 			if (classPathFile.exists()) {
 				classPathFile.write( classPathFile.text.replace(findString, replaceString) )
 			}
-		} catch (IllegalStateException ex) {  // we do nothing with the exception, it was probably thrown because the src jar doesnt exist
-			println "Warning: Exception was thrown when attempting to add the brjs-core src jar to the classpath. This was probably because the src jar doesn't exist.\nThe exception was: \n>> ${ex.toString()}"
+		} catch (IllegalStateException ex) {  // do nothing with the exception, it was probably thrown because the src jar doesnt exist
+			logger.warn("Warning: Exception was thrown when attempting to add the brjs-core src jar to the classpath. Sources will not be added to the Eclipse classpath.")
+			logger.debug(ex.toString())
 		}
 	}
 
@@ -41,7 +42,7 @@ else
 	 *  This configuration, and the wrapping if/else statement can be deleted once the project has been initialised.
 	 *  Make sure to keep the dependencies configuration and other tasks.
 	 */
-	println("\n## WARNING: You are attempting to run a command(s) before initialising this project. You should first run the 'init' task. ##\n")
+	logger.warn("\n## WARNING: You are attempting to run a command(s) before initialising this project. You should first run the 'init' task. ##\n")
 
 	task init, {
 		description "Creates Gradle properties file, directories for src and resources along with the META-INF/services for plugin definitions"
