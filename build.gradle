@@ -42,7 +42,7 @@ else
 	 *  This configuration, and the wrapping if/else statement can be deleted once the project has been initialised.
 	 *  Make sure to keep the dependencies configuration and other tasks.
 	 */
-	logger.warn("\n## WARNING: You are attempting to run a command(s) before initialising this project. You should first run the 'init' task. ##\n")
+	logger.warn("\n## WARNING: You are attempting to run a command(s) before initialising this project. You should first run the 'init' task. (If you are running the init task you can ignore this message) ##\n")
 
 	task init, {
 		description "Creates Gradle properties file, directories for src and resources along with the META-INF/services for plugin definitions"
